@@ -1,0 +1,56 @@
+@charset "utf-8";
+
+
+.board {
+    display: inline-block;          
+    width:480px;
+    padding: 50px 20% 0px 20%;
+    
+  }
+  
+  .card {
+    display:inline-block;
+    cursor: pointer;
+    width: 100px; 
+    height: 100px; 
+    position: relative;
+    overflow: hidden; 
+    padding:10px;
+  }
+  
+  
+
+  .card img {
+    width: 100%; /* Ensures image fills the card */
+    height: 100%; /* Ensures image fills the card */
+    object-fit: cover; /* Keeps aspect ratio intact */
+  }
+  
+.title {
+    padding-bottom: 20px;
+}
+
+.title a{
+    color: darkgreen;
+    font-size: 20px;
+
+
+
+}
+.form {
+    margin-right:20px;
+}
+
+.select {
+    padding-bottom: 10px;
+}
+
+/*
+.ttt-square {width: 80px; height: 80px; margin: 5px; border: 1px solid #000; display:inline-block; font-size: 36px; padding-top:10px; box-sizing: border-box; vertical-align:top;}
+.ttt-board { width: 100%; max-width: 300px;
+			border: 2px solid #2C2C89; text-align:center; margin: 30px auto 0 auto; padding: 20px}
+.playAgain {width: 100px;  height: 40px; margin: 20px auto}
+.noShow {visibility:hidden}
+.ttt-message {height: 50p; font-size: 30px; margin-top: 10px}
+#game {text-align:center}
+*/
