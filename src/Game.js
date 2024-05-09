@@ -1,83 +1,134 @@
 import React, { useState, useEffect } from 'react';
 import Card from './Card';
 
-function Game() {
-    const [cards, setCards] = useState([]);
-    const [flippedCards, setFlippedCards] = useState([]);
-    const [canFlip, setCanFlip] = useState(true);
+import {useParams} from 'react-router-dom';
 
-    //const [message, setMessage] = useState('&nbsp;')
+
+
+function Game() {
+    const {level} = useParams();  
+    const [cards, setCards] = useState([]);
+    const [turnedcards, setturnedcards] = useState([]);
+    const [yesFlip, setyesFlip] = useState(true);
+
+    
+    const [startGame, setstartGame] = useState(false);
+    const [endGame, setendGame] = useState(false);
+    
+    const [playerName, setPlayerName]=useState(' ');
 
     useEffect(() => {
+        
         fetchImages();
-    }, []);
+    }, [level, startGame]); 
+    console.log(level);
+
+
+    useEffect(()=>{
+        if(endGame){
+            const time = setTimeout(()=> {
+                restart();}, 2100);
+                return () => clearTimeout(time);
+            }
+        }, 
+        [endGame]
+    );
+    
+
 
     const fetchImages = async () => {
-        try {
-            const response = await fetch('https://api.pexels.com/v1/search?query=people&per_page=8', {
+
+        //setTurn(turn==='X' ? 'O' : 'X')
+        const pexelsimages = level=== 'easy' ? 2 : 8;
+    
+            const response = await fetch(`https://api.pexels.com/v1/search?query=people&per_page=${pexelsimages}`, {
                 headers: {
-                    Authorization: 'VTbiMIZyTxMXpma45CRPfIw8zigT4IhlyQeMyFaN9a9RBBqUTo1h4eaS' // Secure this in a real app
+                    Authorization: 'VTbiMIZyTxMXpma45CRPfIw8zigT4IhlyQeMyFaN9a9RBBqUTo1h4eaS' 
                 }
             });
-
+    
             const data = await response.json();
             const images = data.photos.map(photo => ({
+                
                 id: photo.id,
+                
                 url: photo.src.medium,
             }));
-
-            initializeGame(images);
-        } catch (error) {
-            console.error("Failed to fetch images:", error);
-        }
+            console.log(images);
+            beginGame(images);
+       
     };
+    
 
-    const initializeGame = (images) => {
-        const doubledImages = [...images, ...images];
-        const shuffledImages = shuffle(doubledImages);
+    const beginGame = (images) => {
+        const imagePairs = [...images, ...images];
+       // console.log(imagePairs);
+        const shuffledImages = shuffle(imagePairs);
+
         setCards(shuffledImages.map((image, index) => ({
-            id: index,
             image: image.url,
-            flipped: false,
+            id: index,
+            
+            turnedover: false,
         })));
+
+        setendGame(false);
+        setyesFlip(true);
+
     };
+
+    function restart () {
+        setstartGame(false);
+        setPlayerName('');
+        setendGame(false);
+
+        setturnedcards([]);
+    }
+
     useEffect(() => {
-        const flipped = cards.filter(card => card.flipped && !flippedCards.includes(card.id));
+        const turnedover = cards.filter(card => card.turnedover && !turnedcards.includes(card.id));
     
-        if (flipped.length === 2) {
-            setCanFlip(false); // Prevents further flipping during check
+        if (turnedover.length === 2) {
+            setyesFlip(false); 
     
-            if (flipped[0].image === flipped[1].image) { // Check if images match
+            if (turnedover[0].image === turnedover[1].image) { 
                 console.log("Cards match, keeping them flipped");
-                const matchedIDs = flipped.map(card => card.id);
-                setFlippedCards(flippedCards => [...flippedCards, ...matchedIDs]);
-                setTimeout(() => setCanFlip(true), 10); // Short pause before allowing more flips
+
+                const matchedIDs = turnedover.map(card => card.id);
+                setturnedcards(turnedcards => [...turnedcards, ...matchedIDs]);
+
+                if(turnedcards.length + 2 === cards.length){
+                    setendGame(true);
+                }
+                setTimeout(() => setyesFlip(true), 10); 
+
             } else {
-                console.log("Comparing images:", flipped[0].image, flipped[1].image);
+
+                console.log("see if matching pairs:", turnedover[0].image, turnedover[1].image);
              
                 setTimeout(() => {
                     setCards(cards => cards.map(card => {
-                        return flipped.some(fCard => fCard.id === card.id) ? {...card, flipped: false} : card;
+                        return turnedover.some(fCard => fCard.id === card.id) ? {...card, turnedover: false} : card;
                     }));
-                    setFlippedCards(flippedCards => flippedCards.filter(id => !flipped.map(card => card.id).includes(id)));
+                    setturnedcards(turnedcards => turnedcards.filter(id => !turnedover.map(card => card.id).includes(id)));
                   
                   
-                    setCanFlip(true);
+                    setyesFlip(true);
                 }, 1000);
 
-                //gameOver=false;
+                //endGame=false;
             }
 
         }
-    }, [cards]); // Dependency array includes cards to react to their updates
+    }, [cards]); 
     
-    const handleCardClick = id => {
-        if (!canFlip || flippedCards.includes(id)) {
-            console.log("Flip prevented for card " + id);
+    const handleSquareClick = id => {
+        if (!yesFlip || turnedcards.includes(id)) {
+            console.log("turnover prevented for card " + id);
             return;
         }
         setCards(prevCards => prevCards.map(card => 
-            card.id === id ? {...card, flipped: !card.flipped} : card
+            card.id === id ? {...card, turnedover: !card.turnedover} : card
         ));
     };
     
@@ -85,29 +136,56 @@ function Game() {
   
   
   
-  function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]]; // Swap elements
-    }
-    return array;
-  }
+  function shuffle(imagepairs) {
+    return imagepairs.sort(()=> Math.random() - 0.5);
   
+    }
+  
+  
+  
+  const handleNameSubmit = (e) => {
+    e.preventDefault();  
+    setstartGame(true);
+};
+
   return (
-    <div className="board">
-        {cards.map(card => (
-            <Card key={card.id} id ={card.id} image={card.image} flipped={card.flipped} onCardClick={handleCardClick} />
-        ))}
+<div>
+{!startGame ? (
+                <form onSubmit={handleNameSubmit}>
+                    <input
+                        type="text"
+                        placeholder="Enter your name"
+                        value={playerName}
+                        onChange={e => setPlayerName(e.target.value)}
+                        style={{ margin: '10px', padding: '5px' }}
+                    />
+                    <button type="submit" style={{ padding: '5px 10px' }}>Start Game</button>
+                </form>
+            ) : (
+                <>
+                    <h1>Let's start the game: {playerName}!</h1>
+                    <div className="board">
+                        {cards.map(card => (
+                            <Card key={card.id} id={card.id} image={card.image} turnedover={card.turnedover} onCardClick={handleSquareClick} />
+                        ))}
+                    </div><br />
+                    {endGame && <h2>Thank you for playing, you have matched all pairs!</h2>}
+                    <a href="https://www.pexels.com">Photos provided by Pexels</a>
+                </>
+            )}
 
-
-<a href="https://www.pexels.com">Photos provided by Pexels</a>
 
 
         
     </div>
   );
+/*
+  function PlayAgainButton()
+    {
+        return <button className={endGame?'playAgain':'noShow'} onClick= {()=>restart()}>Play Again?</button>
+    }
+*/
 }
-
 
 
 export default Game;

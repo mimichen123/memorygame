@@ -1,10 +1,46 @@
-@charset "utf-8";
 
 
+#root {
+  text-align: center;
+  padding-top: 30px;
+
+}
+
+nav ul {
+  list-style-type: none; 
+}
+
+nav li {
+  display: inline; 
+  margin-right: 20px; 
+}
+
+nav li:after {
+  content: "|";
+  
+margin-left: 20px; 
+  color: darkblue; 
+}
+
+nav li:last-child:after {
+  content: " ";
+}
+
+
+nav a {
+  text-decoration: none; 
+  color: brown; 
+  font-weight: bold; 
+}
+
+h1 {
+  font-size: 28px;
+  color:brown;
+}
 .board {
     display: inline-block;          
     width:480px;
-    padding: 50px 20% 0px 20%;
+    padding: 20px 20% 0px 20%;
     
   }
   
@@ -21,9 +57,11 @@
   
 
   .card img {
-    width: 100%; /* Ensures image fills the card */
-    height: 100%; /* Ensures image fills the card */
-    object-fit: cover; /* Keeps aspect ratio intact */
+    width: 100%; 
+    height: 100%; 
+
+    object-fit: cover; 
+
   }
   
 .title {
@@ -41,9 +79,6 @@
     margin-right:20px;
 }
 
-.select {
-    padding-bottom: 10px;
-}
 
 /*
 .ttt-square {width: 80px; height: 80px; margin: 5px; border: 1px solid #000; display:inline-block; font-size: 36px; padding-top:10px; box-sizing: border-box; vertical-align:top;}

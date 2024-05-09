@@ -1,19 +1,29 @@
 import React from 'react';
 
-function Card({ id, image, onCardClick, flipped }) {
+
+function Card({ id, image, onCardClick, turnedover }) {
     
-    const backsideImage = '/momtips.png'; 
-    //console.log('card flipped answer:',flipped);   
+    /*var styles = 
+    {
+        w: '100px'; 
+        h: '100px'; 
+    }
+    */
+
+    const virtualCardFront = '/codeimage2.png'; 
+    console.log(image);
+    //image = url
     //console.log('card compentn id:'+id);
-    return (
+    console.log('is card turned over answer:',turnedover);   
+
+    return <>
         <div className="card" onClick={() => onCardClick(id)}>
-            <img src={flipped ? image : backsideImage} alt="Card image" />
+            <img src={turnedover ? image : virtualCardFront} />
         </div>
     
-);
-    
-}
+        </>
 
+}
   
 
   export default Card;

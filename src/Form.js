@@ -1,24 +1,42 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 
-function Form({ onStartGame }) {
-  const [email, setEmail] = useState('');
+function EmailValidator() {
+    const [email, setEmail] = useState('');
+    const [isValid, setIsValid] = useState(null);
 
-  const validateEmail = async () => {
-    const response = await axios.get(`https://api.validator.pizza/email/${email}`);
-    if (response.data.status === "valid") {
-      onStartGame();
-    } else {
-      alert("Invalid email, please use a non-disposable email address.");
-    }
+    const handleInputChange = (event) => {
+        setEmail(event.target.value);
+    };
+
+    const validateEmail = async (email) => {
+      try {
+          const response = await fetch(`https://emailvalidation.abstractapi.com/v1/?api_key=adaa53b1d95b411c8392f17ee5c37cc3&email=${email}`);
+          if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          setIsValid(data.valid);
+      } catch (error) {
+          console.error('Failed to validate email:', error);
+          setIsValid(false);
+      }
   };
+  
 
-  return (
-    <form onSubmit={(e) => e.preventDefault()}>
-      <input type="text" placeholder="Enter email" onChange={(e) => setEmail(e.target.value)} />
-      <button type="submit" onClick={validateEmail}>Start Game</button>
-    </form>
-  );
+    return (
+        <div>
+            <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={handleInputChange}
+            />
+            <button onClick={validateEmail}>Validate Email</button>
+            {isValid !== null && (
+                <p>{isValid ? "Email is valid!" : "Email is not valid or the service cannot be reached."}</p>
+            )}
+        </div>
+    );
 }
 
-export default Form;
+export default EmailValidator;
